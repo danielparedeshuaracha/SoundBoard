@@ -19,17 +19,20 @@ class SoundViewController: UIViewController {
     @IBOutlet weak var nombreTextField: UITextField!
     @IBOutlet weak var agregarButton: UIButton!
     @IBAction func grabarTapped(_ sender: Any) {
-        if grabarAudio!.isRecording{
-            //detener la grabacion
-            grabarAudio?.stop()
-            //cambiar texto del boton grabar
-            grabarButton.setTitle("GRABAR", for: .normal)
-        }else{
-            //empezar a grabar
-            grabarAudio?.record()
-            //cambiar el texto del boton grabar a detener
-            grabarButton.setTitle("DETENER", for: .normal)
-        }
+         if grabarAudio!.isRecording{
+                  //detener la grabacion
+                  grabarAudio?.stop()
+                  //cambiar texto del boton grabar
+                  grabarButton.setTitle("GRABAR", for: .normal)
+                  reproducirButton.isEnabled = true
+            agregarButton.isEnabled = true
+              }else{
+                  //empezar a grabar
+                  grabarAudio?.record()
+                  //cambiar el texto del boton grabar a detener
+                  grabarButton.setTitle("DETENER", for: .normal)
+                  reproducirButton.isEnabled = false
+                }
     }
     @IBAction func reproducirTapped(_ sender: Any) {
         do{
@@ -41,6 +44,15 @@ class SoundViewController: UIViewController {
         }
     }
     @IBAction func agregarTapped(_ sender: Any) {
+
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let grabacion = Grabacion(context: context)
+        grabacion.nombre = nombreTextField.text
+        grabacion.audio = NSData(contentsOf: audioURL!)! as Data
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        navigationController!.popViewController(animated: true)
+            
+                 
     }
     func configurarGrabacion(){
         do{
@@ -57,7 +69,7 @@ class SoundViewController: UIViewController {
             print("********+")
             print(audioURL!)
             print("*********")
-            //crear opcions para elgrabador de audio
+            //crear opciones para el grabador de audio
             var settings:[String:AnyObject] = [:]
             settings[AVFormatIDKey] = Int(kAudioFormatMPEG4AAC) as AnyObject?
             settings[AVSampleRateKey] = 44100.0 as AnyObject?
@@ -72,7 +84,8 @@ class SoundViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarGrabacion()
-
+        reproducirButton.isEnabled = false
+        agregarButton.isEnabled = false
     
     }
     
